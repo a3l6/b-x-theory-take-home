@@ -167,18 +167,6 @@ formatter = LlmAgent(
 - Include a separator row with dashes
 - Align columns for readability
 
-**Additional Output:**
-After the table, include:
-1. **Summary Statistics:**
-   - Total study days
-   - Total study hours
-   - Average hours per study day (excluding breaks)
-
-2. **Key Reminders:**
-   - Break days marked
-   - Peak study days (4 hours) highlighted
-   - Final review days noted
-
 **Example Output:**
 ```markdown
 # Study Schedule
@@ -189,14 +177,6 @@ After the table, include:
 | 2 | 2026-02-10 | Math 135 | Chapter 3 | Mathematical induction | 4.0 |
 | 3 | 2026-02-11 | - | - | Break day | 0.0 |
 
-## Summary
-- **Total Study Days:** 2
-- **Total Study Hours:** 7.5
-- **Average Daily Hours:** 3.75
-
-## Reminders
-- Day 2 is a peak study day (4 hours)
-- Day 3 is a scheduled break
 ```
 
 **Output only the markdown content - no additional commentary.**"""
