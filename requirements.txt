@@ -1,0 +1,22 @@
+# Core dependencies for ADK Exam Study Planner
+
+# Google Agent Development Kit and Gemini API
+google-adk>=0.1.0
+google-genai>=0.8.0
+
+# Data validation and schemas
+pydantic>=2.0.0
+
+# Testing framework
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+
+# Environment variable management
+python-dotenv>=1.0.0
+
+# Optional: PDF processing (if you want to add local parsing)
+# pypdf2>=3.0.0
+# pdfplumber>=0.10.0
+
+# Optional: Additional utilities
+# python-dateutil>=2.8.0  # For date calculations
