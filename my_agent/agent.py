@@ -54,7 +54,6 @@ class FullPlan(BaseModel):
     total_hours: float = Field(description="Total estimated study hours")
 
 
-# Use Gemini 2.0 Flash for speed and document understanding
 MODEL = "gemini-3-flash-preview"
 
 extractor = LlmAgent(
