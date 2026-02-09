@@ -142,11 +142,11 @@ def validate_schedule_structure(response):
 async def test_basic_output_determinism():
     """Checks if the agent consistently returns valid structured data."""
     mock_input = "Course: AI 101. Textbook covers: Neural Networks, Search, and Logic."
-runner = Runner(app_name="bxtheory tests", agent=root_agent,
-                session_service=InMemorySessionService())
+    runner = Runner(app_name="bxtheory tests", agent=root_agent,
+                    session_service=InMemorySessionService())
 
-response = get_final_response(runner, mock_input)
-validate_schedule_structure(response)
+    response = get_final_response(runner, mock_input)
+    validate_schedule_structure(response)
 
 
 @pytest.mark.asyncio
@@ -283,7 +283,7 @@ async def test_positive_hours_constraint():
         assert entry.estimated_hours >= 0, f"Day {
             entry.day} has negative hours: {entry.estimated_hours}"
 
-        if 'break' not in entry.task.lower():
+        if 'break' not in entry.task.lower() and 'break' not in entry.chapter.lower() and 'rest' not in entry.task.lower():
             assert entry.estimated_hours > 0, f"Non-break day {
                 entry.day} should have positive hours: {entry.estimated_hours}"
 

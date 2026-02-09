@@ -2,9 +2,12 @@ import asyncio
 from google.adk.agents import LlmAgent, SequentialAgent
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
+from google.adk.tools import FunctionTool
+from google.genai import types
 from typing import List, Optional
 from pydantic import BaseModel, Field
 from datetime import datetime
+from time import gmtime, strftime
 
 
 class Chapter(BaseModel):
@@ -55,6 +58,46 @@ class FullPlan(BaseModel):
 
 
 MODEL = "gemini-3-flash-preview"
+
+# Tool to save markdown file as downloadable artifact
+async def save_study_plan(markdown_content: str, tool_context) -> str:
+    """Saves the study plan as a downloadable markdown file.
+
+    Args:
+        markdown_content: The markdown text to save
+        tool_context: The tool context (injected by ADK)
+
+    Returns:
+        Confirmation message with filename
+    """
+    # Check if artifact service is available (may not be in tests)
+    if tool_context is None or not hasattr(tool_context, 'invocation_context'):
+        return "Note: Artifact service not available (test mode). File not saved."
+
+    invocation_context = tool_context.invocation_context
+    if invocation_context is None or invocation_context.artifact_service is None:
+        return "Note: Artifact service not available (test mode). File not saved."
+
+    # Create filename with timestamp
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"study_plan_{timestamp}.md"
+
+    # Create artifact with markdown content
+    artifact = types.Part.from_bytes(
+        data=markdown_content.encode('utf-8'),
+        mime_type="text/markdown"
+    )
+
+    # Save artifact (makes it downloadable in web UI)
+    version = await tool_context.save_artifact(
+        filename=filename,
+        artifact=artifact,
+        custom_metadata={"type": "study_schedule", "format": "markdown"}
+    )
+
+    return f"✓ Study plan saved as '{filename}' (version {version}). You can download it from the web interface."
+
+save_plan_tool = FunctionTool(save_study_plan)
 
 extractor = LlmAgent(
     name="ExtractorAgent",
@@ -157,16 +200,16 @@ Day 3: Study Chapters 2-3 on Proofs and Induction, review exercises (3.5 hours)
 formatter = LlmAgent(
     name="FormatterAgent",
     model=MODEL,
-    instruction="""Convert the study schedule {raw_schedule} into a well-formatted Markdown table.
+    instruction=f"The time is {strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())}." + """Convert the study schedule {raw_schedule} into a well-formatted Markdown table.
 
-**Required Format:**
-- Create a table with columns: Day | Date | Course | Chapter | Task | Hours
-- Use proper Markdown table syntax with | separators
-- Include a header row with column names
-- Include a separator row with dashes
-- Align columns for readability
+**Your Task:**
+1. Create a markdown table with columns: Day | Date | Course | Chapter | Task | Hours
+2. Use proper Markdown table syntax with | separators
+3. Include a header row with column names and a separator row with dashes
+4. After creating the table, call save_study_plan to make it downloadable
+5. ALWAYS output the complete markdown table in your final response
 
-**Example Output:**
+**Example Format:**
 ```markdown
 # Study Schedule
 
@@ -175,10 +218,12 @@ formatter = LlmAgent(
 | 1 | 2026-02-09 | Math 135 | Chapter 1-2 | Introduction to proofs | 3.5 |
 | 2 | 2026-02-10 | Math 135 | Chapter 3 | Mathematical induction | 4.0 |
 | 3 | 2026-02-11 | - | - | Break day | 0.0 |
-
 ```
 
-**Output only the markdown content - no additional commentary.**"""
+**Important:**
+- First, call save_study_plan with the markdown content
+- Then, output the complete markdown table as your response""",
+    tools=[save_plan_tool]
 )
 
 study_pipeline = SequentialAgent(
