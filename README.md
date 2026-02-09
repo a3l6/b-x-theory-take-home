@@ -192,9 +192,6 @@ pytest test_agents.py -k "constraint" -v
 
 ## Sample Output
 
-```markdown
-# Study Schedule
-
 | Day | Date | Course | Chapter | Task | Hours |
 |-----|------|--------|---------|------|-------|
 | 1 | 2026-02-09 | Math 135 | Ch 1-2 | Introduction to Logic and Proofs | 3.5 |
@@ -203,7 +200,6 @@ pytest test_agents.py -k "constraint" -v
 | 4 | 2026-02-12 | STAT 230 | Ch 1-2 | Probability Basics | 3.5 |
 | 5 | 2026-02-13 | - | - | Break Day | 0.0 |
 | 6 | 2026-02-14 | STAT 230 | Ch 3 | Discrete Random Variables | 4.0 |
-```
 
 ## Troubleshooting
 
