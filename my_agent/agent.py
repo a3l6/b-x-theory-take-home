@@ -70,32 +70,28 @@ async def save_study_plan(markdown_content: str, tool_context) -> str:
     Returns:
         Confirmation message with filename
     """
-    # Check if artifact service is available (may not be in tests)
-    if tool_context is None or not hasattr(tool_context, 'invocation_context'):
-        return "Note: Artifact service not available (test mode). File not saved."
-
-    invocation_context = tool_context.invocation_context
-    if invocation_context is None or invocation_context.artifact_service is None:
-        return "Note: Artifact service not available (test mode). File not saved."
-
     # Create filename with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"study_plan_{timestamp}.md"
 
-    # Create artifact with markdown content
-    artifact = types.Part.from_bytes(
-        data=markdown_content.encode('utf-8'),
-        mime_type="text/markdown"
-    )
+    try:
+        # Create artifact with markdown content
+        artifact = types.Part.from_bytes(
+            data=markdown_content.encode('utf-8'),
+            mime_type="text/markdown"
+        )
 
-    # Save artifact (makes it downloadable in web UI)
-    version = await tool_context.save_artifact(
-        filename=filename,
-        artifact=artifact,
-        custom_metadata={"type": "study_schedule", "format": "markdown"}
-    )
+        # Save artifact directly through tool_context
+        version = await tool_context.save_artifact(
+            filename=filename,
+            artifact=artifact,
+            custom_metadata={"type": "study_schedule", "format": "markdown"}
+        )
 
-    return f"✓ Study plan saved as '{filename}' (version {version}). You can download it from the web interface."
+        return f"✓ Study plan saved as '{filename}' (version {version}). You can download it from the web interface."
+
+    except Exception as e:
+        return f"Error saving file: {str(e)}. However, the study plan is shown above."
 
 save_plan_tool = FunctionTool(save_study_plan)
 
